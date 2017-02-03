@@ -1,7 +1,7 @@
 # SteamworksWrapper
 A very simple and specialized (but expandable) Steamworks API wrapper for Unity I'm gonna use for BUTCHER.
 
-If you want to use it, use at your own risk. If you expect any support from me, you can simply fuck off because fuck dealing with people.
+If you want to use it, use at your own risk. No support provided.
 
 The only purpose of this wrapper is to write a simple and robust library that's no bullshit on the C# side.
 
@@ -15,7 +15,8 @@ Basic principles of the library:
 Leaderboards demo syntax (no Steamworks SDK callback mess):
 ```
 try {
-    testLeaderboard = Steam.Leaderboard.Create();
+    testLeaderboard = Steam.Leaderboard.Create(); //make sure its lifespan is long enough for callback to be fired
+                                                  //or the object might get GC-d and all requests might be just cancelled
 
     testLeaderboard.onFind += () => {
         Debug.Log("Loaded the leaderboard!");
