@@ -27,7 +27,7 @@
 *.opensdf
 
 # Build dirs
-build/
+build/*
 # Except for specific files
 !build/SteamworksWrapper.dll
 !build/SteamworksWrapper64.dll
@@ -36,6 +36,3 @@ build/
 !build/SteamworksWrapperOSX.so
 !build/SteamworksWrapperOSX64.so
 
-# CMake cache
-CMakeCache.txt
-CMakeFiles/
