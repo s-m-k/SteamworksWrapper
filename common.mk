@@ -10,13 +10,14 @@ LDFLAGS=-g $(MARCH)
 LDLIBS=$(LIBS)
 OUTDIR=NativeSource/build
 
-SRCS=$(SRC)/Friends.cpp $(SRC)/Leaderboard.cpp $(SRC)/SteamworksWrapper.cpp $(SRC)/User.cpp $(SRC)/UserStats.cpp
+CPPS=Friends.cpp Leaderboard.cpp SteamworksWrapper.cpp User.cpp UserStats.cpp
+SRCS=$(patsubst %,$(SRC)/%,$(CPPS))
 OBJS=$(subst .cpp,.o,$(SRCS))
 
 all: steamworks
 
 steamworks: $(OBJS)
-	$(CXX) $(LDFLAGS) $(MARCH) -Wall -shared -o $(OUTDIR)/$(TARGETNAME).so $(OBJS) $(LDLIBS) 
+	$(CXX) $(LDFLAGS) -Wall -shared -o $(OUTDIR)/$(TARGETNAME).so $(OBJS) $(LDLIBS) 
 
 depend: .depend
 
