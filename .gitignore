@@ -18,6 +18,5 @@ Assets/Plugins/SteamworksWrapper/bin/x86_64/*
 !Assets/Plugins/SteamworksWrapper/bin/x86/libsteam_api.so
 !Assets/Plugins/SteamworksWrapper/bin/x86_64/libSteamworksWrapper64.so
 !Assets/Plugins/SteamworksWrapper/bin/x86_64/libsteam_api.so
-!Assets/Plugins/SteamworksWrapper/bin/x86/libSteamworksWrapper.dylib
-!Assets/Plugins/SteamworksWrapper/bin/x86/libsteam_api.dylib
-!Assets/Plugins/SteamworksWrapper/bin/x86_64/libSteamworksWrapper64.dylib
+!Assets/Plugins/SteamworksWrapper/bin/x86/SteamworksWrapper.bundle/*
+!Assets/Plugins/SteamworksWrapper/bin/x86_64/SteamworksWrapper64.bundle/*

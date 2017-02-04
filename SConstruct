@@ -47,10 +47,11 @@ def buildForSystem(os, arch):
 
 	if os == 'osx':
 		env.Append(LINKFLAGS=['-Wl,-rpath,\'$$ORIGIN\'','-m' + arch])
+		targetPath += libTarget + '.bundle/Contents/MacOS/'
 	else:
 		env.Append(LINKFLAGS=['-Wl,-z,origin','-Wl,-rpath,\'$$ORIGIN\'','-m' + arch])
 
-	env.SharedLibrary(target = targetPath + libTarget, source = libSources)
+	env.LoadableModule(target = targetPath + libTarget, source = libSources)
 
 
 if not os in availableOses:
