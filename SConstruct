@@ -24,12 +24,16 @@ arch = GetOption('arch')
 
 def buildForSystem(os, arch):
 	libSuffix = ''
+	steamPath = os + arch
 
 	if arch == '64':
 		unityArch = 'x86_64'
 		libSuffix = '64'
 	else:
 		unityArch = 'x86'
+
+	if arch == '64' and os == 'osx':
+		steamPath = 'osx32'
 	
 	env = Environment()
 
@@ -38,9 +42,13 @@ def buildForSystem(os, arch):
 	libTarget = 'SteamworksWrapper' + libSuffix
 
 	env.Append(CCFLAGS='-g -I/usr/include/root -INativeSource/inc -m' + arch + ' -fPIC -std=c++11 -Wall')
-	env.Append(LIBPATH=['NativeSource/lib/' + os + arch])
+	env.Append(LIBPATH=['NativeSource/lib/' + steamPath])
 	env.Append(LIBS=['steam_api'])
-	env.Append(LINKFLAGS=['-Wl,-z,origin','-Wl,-rpath,\'$$ORIGIN\'','-m' + arch])
+
+	if os == 'osx':
+		env.Append(LINKFLAGS=['-Wl,-rpath,\'$$ORIGIN\'','-m' + arch])
+	else:
+		env.Append(LINKFLAGS=['-Wl,-z,origin','-Wl,-rpath,\'$$ORIGIN\'','-m' + arch])
 
 	env.SharedLibrary(target = targetPath + libTarget, source = libSources)
 
