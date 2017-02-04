@@ -8,7 +8,6 @@ MARCH = -m$(ARCHSUFFIX)
 CPPFLAGS=-g $(MARCH) -I/usr/include/root -fPIC -std=c++11 -I$(INC)
 LDFLAGS=-g $(MARCH)
 LDLIBS=$(LIBS) -L$(LIB)/linux$(ARCHSUFFIX) -lsteam_api$(ARCHLIBSUFFIX)
-
 OUTDIR=NativeSource/build
 
 SRCS=$(SRC)/Friends.cpp $(SRC)/Leaderboard.cpp $(SRC)/SteamworksWrapper.cpp $(SRC)/User.cpp $(SRC)/UserStats.cpp
