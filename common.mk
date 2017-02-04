@@ -18,7 +18,7 @@ all: steamworks
 
 steamworks: $(OBJS)
 	mkdir -p $(OUTDIR)
-	$(CXX) $(LDFLAGS) -Wall $(SHARED) -o $(OUTDIR)/$(TARGETNAME) $(OBJS) $(LDLIBS) 
+	$(CXX) $(LDFLAGS) -Wall -Wl,-z,origin '-Wl,-rpath,$$ORIGIN' $(SHARED) -o $(OUTDIR)/$(TARGETNAME) $(OBJS) $(LDLIBS) 
 
 depend: .depend
 
