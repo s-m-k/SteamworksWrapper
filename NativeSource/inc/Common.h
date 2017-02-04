@@ -4,6 +4,8 @@
 #include "steam/steam_api.h"
 #ifdef __linux__
 #define API(x) x __cdecl
+#elif __MACH__
+#define API(x) x __cdecl
 #else
 #define API(x) __declspec(dllexport) x __cdecl
 #endif

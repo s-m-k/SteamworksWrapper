@@ -28,6 +28,13 @@
 
 # Build dirs
 build/
+# Except for specific files
+!build/SteamworksWrapper.dll
+!build/SteamworksWrapper64.dll
+!build/SteamworksWrapper.so
+!build/SteamworksWrapper64.so
+!build/SteamworksWrapperOSX.so
+!build/SteamworksWrapperOSX64.so
 
 # CMake cache
 CMakeCache.txt

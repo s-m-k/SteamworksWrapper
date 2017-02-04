@@ -17,7 +17,8 @@ OBJS=$(subst .cpp,.o,$(SRCS))
 all: steamworks
 
 steamworks: $(OBJS)
-	$(CXX) $(LDFLAGS) -Wall -shared -o $(OUTDIR)/$(TARGETNAME).so $(OBJS) $(LDLIBS) 
+	mkdir -p $(OUTDIR)
+	$(CXX) $(LDFLAGS) -Wall $(SHARED) -o $(OUTDIR)/$(TARGETNAME) $(OBJS) $(LDLIBS) 
 
 depend: .depend
 
