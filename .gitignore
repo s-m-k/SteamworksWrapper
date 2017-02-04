@@ -2,3 +2,20 @@
 *.*~
 *~
 
+*.exp
+
+# Build dirs
+Assets/Plugins/SteamworksWrapper/bin/x86/*
+Assets/Plugins/SteamworksWrapper/bin/x86_64/*
+# Except for specific files
+!Assets/Plugins/SteamworksWrapper/bin/x86/SteamworksWrapper.dll
+!Assets/Plugins/SteamworksWrapper/bin/x86/steam_api.dll
+!Assets/Plugins/SteamworksWrapper/bin/x86_64/SteamworksWrapper64.dll
+!Assets/Plugins/SteamworksWrapper/bin/x86_64/steam_api64.dll
+!Assets/Plugins/SteamworksWrapper/bin/x86/SteamworksWrapper.so
+!Assets/Plugins/SteamworksWrapper/bin/x86/libsteam_api.so
+!Assets/Plugins/SteamworksWrapper/bin/x86_64/SteamworksWrapper64.so
+!Assets/Plugins/SteamworksWrapper/bin/x86_64/libsteam_api64.so
+!Assets/Plugins/SteamworksWrapper/bin/x86/SteamworksWrapperOSX.so
+!Assets/Plugins/SteamworksWrapper/bin/x86/libsteam_api.dynlib
+!Assets/Plugins/SteamworksWrapper/bin/x86_64/SteamworksWrapperOSX64.so

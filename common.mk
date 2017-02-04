@@ -8,7 +8,7 @@ MARCH = -m$(ARCH)
 CPPFLAGS=-g $(MARCH) -I/usr/include/root -fPIC -std=c++11 -I$(INC)
 LDFLAGS=-g $(MARCH)
 LDLIBS=$(LIBS)
-OUTDIR=NativeSource/build
+OUTDIR=Assets/Plugins/SteamworksWrapper/bin/$(UNITYARCH)
 
 CPPS=Friends.cpp Leaderboard.cpp SteamworksWrapper.cpp User.cpp UserStats.cpp
 SRCS=$(patsubst %,$(SRC)/%,$(CPPS))
