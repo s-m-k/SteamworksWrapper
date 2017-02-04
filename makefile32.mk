@@ -1,3 +1,0 @@
-ARCHSUFFIX=32
-ARCHLIBSUFFIX=
-include common.mk
