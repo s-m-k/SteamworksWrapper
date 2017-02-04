@@ -1,0 +1,35 @@
+ARCHSUFFIX=64
+ARCHLIBSUFFIX=64
+CC=gcc
+CXX=g++
+RM=rm -f
+LIB=NativeSource/lib
+SRC=NativeSource/src
+INC=NativeSource/inc
+CPPFLAGS=-g $(shell root-config --cflags) -fPIC -std=c++11 -I$(INC)
+LDFLAGS=-g -m$(ARCHSUFFIX)
+LDLIBS=-L$(LIB)/linux$(ARCHSUFFIX) -lsteam_api$(ARCHLIBSUFFIX)
+
+OUTDIR=NativeSource/build
+
+SRCS=$(SRC)/Friends.cpp $(SRC)/Leaderboard.cpp $(SRC)/SteamworksWrapper.cpp $(SRC)/User.cpp $(SRC)/UserStats.cpp
+OBJS=$(subst .cpp,.o,$(SRCS))
+
+all: steamworks
+
+steamworks: $(OBJS)
+	$(CXX) $(LDFLAGS) -Wall -shared -o $(OUTDIR)/SteamworksWrapper$(ARCHLIBSUFFIX).so $(OBJS) $(LDLIBS) 
+
+depend: .depend
+
+.depend: $(SRCS)
+	$(RM) ./.depend
+	$(CXX) $(CPPFLAGS) -MM $^>>./.depend;
+
+clean:
+	$(RM) $(OBJS)
+
+distclean: clean
+	$(RM) *~ .depend
+
+include .depend

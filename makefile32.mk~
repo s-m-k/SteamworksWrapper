@@ -1,0 +1,4 @@
+ARCHSUFFIX=32
+ARCHLIBSUFFIX=
+LIBS=-L/usr/lib/i686-linux-gnu
+include common.mk

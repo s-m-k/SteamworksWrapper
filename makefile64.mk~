@@ -1,0 +1,4 @@
+ARCHSUFFIX=64
+ARCHLIBSUFFIX=64
+LIBS=-L/usr/lib/x86_64-linux-gnu
+include common.mk

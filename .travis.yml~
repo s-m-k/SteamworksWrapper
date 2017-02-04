@@ -2,7 +2,7 @@ language: cpp
 matrix:
 	include:
 	- os: linux
-	dist: trusty
+	distro: trusty
 
 install:
 	- sudo apt-get install gcc-multilib

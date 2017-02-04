@@ -18,7 +18,7 @@ extern "C" {
 
 	class Leaderboard {
 	private:
-		SteamLeaderboard_t handle = -1;
+		SteamLeaderboard_t handle;
 		std::vector<LeaderboardEntry> downloadedEntries;
 
 		void ReportError(SteamworksError error);
