@@ -2,6 +2,8 @@
 *.*~
 *~
 
+.sconsign.dblite
+
 *.exp
 
 # Build dirs
