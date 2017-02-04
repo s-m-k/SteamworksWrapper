@@ -1,4 +1,4 @@
-Friends.o: NativeSource/src/Friends.cpp NativeSource/inc/Friends.h \
+foo/Friends.o: NativeSource/src/Friends.cpp NativeSource/inc/Friends.h \
  NativeSource/inc/Common.h NativeSource/inc/steam/steam_api.h \
  NativeSource/inc/steam/isteamclient.h \
  NativeSource/inc/steam/steamtypes.h \
@@ -26,7 +26,7 @@ Friends.o: NativeSource/src/Friends.cpp NativeSource/inc/Friends.h \
  NativeSource/inc/steam/isteaminventory.h \
  NativeSource/inc/steam/isteamvideo.h \
  NativeSource/inc/steam/steam_api_internal.h
-Leaderboard.o: NativeSource/src/Leaderboard.cpp \
+foo/Leaderboard.o: NativeSource/src/Leaderboard.cpp \
  NativeSource/inc/Leaderboard.h NativeSource/inc/Common.h \
  NativeSource/inc/steam/steam_api.h NativeSource/inc/steam/isteamclient.h \
  NativeSource/inc/steam/steamtypes.h \
@@ -54,7 +54,7 @@ Leaderboard.o: NativeSource/src/Leaderboard.cpp \
  NativeSource/inc/steam/isteaminventory.h \
  NativeSource/inc/steam/isteamvideo.h \
  NativeSource/inc/steam/steam_api_internal.h
-SteamworksWrapper.o: NativeSource/src/SteamworksWrapper.cpp \
+foo/SteamworksWrapper.o: NativeSource/src/SteamworksWrapper.cpp \
  NativeSource/inc/SteamworksWrapper.h NativeSource/inc/IUnityInterface.h \
  NativeSource/inc/Common.h NativeSource/inc/steam/steam_api.h \
  NativeSource/inc/steam/isteamclient.h \
@@ -85,7 +85,7 @@ SteamworksWrapper.o: NativeSource/src/SteamworksWrapper.cpp \
  NativeSource/inc/steam/steam_api_internal.h \
  NativeSource/inc/Leaderboard.h NativeSource/inc/UserStats.h \
  NativeSource/inc/Friends.h
-User.o: NativeSource/src/User.cpp NativeSource/inc/User.h \
+foo/User.o: NativeSource/src/User.cpp NativeSource/inc/User.h \
  NativeSource/inc/Common.h NativeSource/inc/steam/steam_api.h \
  NativeSource/inc/steam/isteamclient.h \
  NativeSource/inc/steam/steamtypes.h \
@@ -113,7 +113,7 @@ User.o: NativeSource/src/User.cpp NativeSource/inc/User.h \
  NativeSource/inc/steam/isteaminventory.h \
  NativeSource/inc/steam/isteamvideo.h \
  NativeSource/inc/steam/steam_api_internal.h
-UserStats.o: NativeSource/src/UserStats.cpp NativeSource/inc/UserStats.h \
+foo/UserStats.o: NativeSource/src/UserStats.cpp NativeSource/inc/UserStats.h \
  NativeSource/inc/Common.h NativeSource/inc/steam/steam_api.h \
  NativeSource/inc/steam/isteamclient.h \
  NativeSource/inc/steam/steamtypes.h \
@@ -141,3 +141,4 @@ UserStats.o: NativeSource/src/UserStats.cpp NativeSource/inc/UserStats.h \
  NativeSource/inc/steam/isteaminventory.h \
  NativeSource/inc/steam/isteamvideo.h \
  NativeSource/inc/steam/steam_api_internal.h
+foo
