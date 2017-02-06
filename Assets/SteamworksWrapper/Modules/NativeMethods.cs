@@ -73,9 +73,11 @@ namespace SteamworksWrapper {
             [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
             public extern static CSteamID Friends_GetFriendByIndex(int index, int flags);
 
+
             //USER
             [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
             public extern static CSteamID User_GetSteamID();
+
 
             //USERSTATS
             [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
@@ -113,6 +115,66 @@ namespace SteamworksWrapper {
             [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
             [return: MarshalAs(UnmanagedType.I1)]
             public extern static bool UserStats_RequestCurrentStats();
+
+
+            //UGC
+            [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            public extern static IntPtr Workshop_Create(uint appId);
+
+            [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            public extern static void Workshop_Destroy(IntPtr workshop);
+
+            [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            public extern static void Workshop_CreateItem(IntPtr workshop, WorkshopFileType fileType);
+
+            [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            public extern static void Workshop_StartItemUpdate(IntPtr workshop, ulong fileID);
+
+            [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            [return: MarshalAs(UnmanagedType.I1)]
+            public extern static bool Workshop_SetItemTitle(IntPtr workshop, [MarshalAs(UnmanagedType.LPStr)] string title);
+
+            [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            [return: MarshalAs(UnmanagedType.I1)]
+            public extern static bool Workshop_SetItemDescription(IntPtr workshop, [MarshalAs(UnmanagedType.LPStr)] string description);
+
+            [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            [return: MarshalAs(UnmanagedType.I1)]
+            public extern static bool Workshop_SetItemUpdateLanguage(IntPtr workshop, [MarshalAs(UnmanagedType.LPStr)] string lang);
+
+            [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            [return: MarshalAs(UnmanagedType.I1)]
+            public extern static bool Workshop_SetItemMetadata(IntPtr workshop, [MarshalAs(UnmanagedType.LPStr)] string meta);
+
+            [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            [return: MarshalAs(UnmanagedType.I1)]
+            public extern static bool Workshop_SetItemVisibility(IntPtr workshop, PublishedFileVisibility visibility);
+
+            [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            [return: MarshalAs(UnmanagedType.I1)]
+            public extern static bool Workshop_SetItemTags(IntPtr workshop,
+                [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStr, SizeParamIndex = 2)] string[] tags, int count);
+
+            [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            [return: MarshalAs(UnmanagedType.I1)]
+            public extern static bool Workshop_SetItemContent(IntPtr workshop, [MarshalAs(UnmanagedType.LPStr)] string path);
+
+            [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            [return: MarshalAs(UnmanagedType.I1)]
+            public extern static bool Workshop_SetItemPreview(IntPtr workshop, [MarshalAs(UnmanagedType.LPStr)] string path);
+            
+            [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            public extern static void Workshop_SubmitItemUpdate(IntPtr workshop, [MarshalAs(UnmanagedType.LPStr)] string changeNotes);
+            
+            [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            public extern static void Workshop_OnError(IntPtr workshop, OnWorkshopError error);
+
+            [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            public extern static void Workshop_OnCreateItem(IntPtr workshop, OnWorkshopCreateItem createItem);
+
+            [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            public extern static void Workshop_OnSubmitItem(IntPtr workshop, OnWorkshopSubmitItem submitItem);
+            
         }
     }
 }

@@ -8,6 +8,7 @@ namespace SteamworksWrapper {
         static Steam instance;
         static bool steamInitialized = false;
         static bool needsStatsToStore = false;
+        private static uint appId;
 
         private Steam() {
 
@@ -27,7 +28,6 @@ namespace SteamworksWrapper {
 
         public static void Init(uint appId, GameObject obj) {
             //TODO check if steam exists
-
             try {
                 if (NativeMethods.IsRestartRequired(appId)) {
                     Application.Quit();
@@ -39,6 +39,7 @@ namespace SteamworksWrapper {
                 }
 
                 steamInitialized = true;
+                Steam.appId = appId;
 
                 instance = obj.AddComponent<Steam>();
             } catch (Exception e) {

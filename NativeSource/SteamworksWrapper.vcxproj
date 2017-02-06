@@ -223,6 +223,7 @@
     <None Include="inc\steam\steam_api_interop.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Common.cpp" />
     <ClCompile Include="src\Friends.cpp" />
     <ClCompile Include="src\Leaderboard.cpp" />
     <ClCompile Include="src\SteamworksWrapper.cpp" />

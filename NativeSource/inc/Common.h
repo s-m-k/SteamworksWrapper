@@ -23,17 +23,15 @@ extern "C" {
 		ERR_LEADERBOARD_NOT_READY = 0x3,
 		ERR_CANT_DOWNLOAD_SCORES = 0x4,
 		ERR_CANT_UPLOAD_SCORES = 0x5,
-		ERR_CANT_CREATE_ITEM = 0x6
+		ERR_CANT_CREATE_WORKSHOP_ITEM = 0x6,
+		ERR_CANT_SUBMIT_WORKSHOP_ITEM = 0x7
 	};
 
 	typedef void(*ErrorCallback)(SteamworksError error);
-
-	void ReportError(ErrorCallback onError, SteamworksError error) {
-		if (onError != NULL) {
-			onError(error);
-		}
-	}
+	typedef void(*ErrorCallbackDetailed)(SteamworksError error, EResult details);
 }
 
+void ReportError(ErrorCallback onError, SteamworksError error);
+void ReportErrorDetailed(ErrorCallbackDetailed onError, SteamworksError error, EResult result);
 
 #endif

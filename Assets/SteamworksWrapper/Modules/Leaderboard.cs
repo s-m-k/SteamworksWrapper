@@ -16,11 +16,9 @@ namespace SteamworksWrapper {
             public int score;
         }
 
-        public sealed class Leaderboard : IDisposable {
-            bool disposed = false;
+        public sealed class Leaderboard : UnmanagedDisposable {
             bool ready = false;
-            IntPtr pointer;
-
+            
             public event Action onFind;
             public event Action<LeaderboardEntry[]> onDownloadScores;
             public event Action onUploadScore;
@@ -39,8 +37,7 @@ namespace SteamworksWrapper {
                 return new Leaderboard();
             }
 
-            private Leaderboard() {
-                pointer = NativeMethods.Leaderboard_Create();
+            private Leaderboard(): base(NativeMethods.Leaderboard_Create()) {
                 errorDelegate = new OnLeaderboardError(OnError);
                 findDelegate = new OnLeaderboardFind(OnFind);
                 downloadScoresDelegate = new OnLeaderboardDownloadScores(OnDownloadScores);
@@ -50,6 +47,10 @@ namespace SteamworksWrapper {
                 NativeMethods.Leaderboard_OnFind(pointer, findDelegate);
                 NativeMethods.Leaderboard_OnDownloadScores(pointer, downloadScoresDelegate);
                 NativeMethods.Leaderboard_OnUploadScore(pointer, uploadScoreDelegate);
+            }
+
+            protected override void DestroyUnmanaged(IntPtr pointer) {
+                NativeMethods.Leaderboard_Destroy(pointer);
             }
 
             void OnDownloadScores(LeaderboardEntry[] scores, int count) {
@@ -78,10 +79,6 @@ namespace SteamworksWrapper {
                 }
             }
 
-            ~Leaderboard() {
-                DisposeUnmanaged();
-            }
-
             public void Find(string name) {
                 NativeMethods.Leaderboard_Find(pointer, name);
             }
@@ -96,21 +93,9 @@ namespace SteamworksWrapper {
                 NativeMethods.Leaderboard_UploadScore(pointer, method, score);
             }
 
-            public void Dispose() {
-                DisposeUnmanaged();
-                GC.SuppressFinalize(this);
-            }
-
             void AssertReady() {
                 if (!ready) {
                     throw new Exception("The leaderboard is not ready. Call Find(name) first.");
-                }
-            }
-
-            void DisposeUnmanaged() {
-                if (!disposed) {
-                    NativeMethods.Leaderboard_Destroy(pointer);
-                    disposed = true;
                 }
             }
         }
