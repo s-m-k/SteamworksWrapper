@@ -44,6 +44,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Modules\Friends.cs" />
+    <Compile Include="Modules\Workshop.cs" />
+    <Compile Include="Modules\UnmanagedDisposable.cs" />
     <Compile Include="Modules\Leaderboard.cs" />
     <Compile Include="Modules\NativeMethods.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
