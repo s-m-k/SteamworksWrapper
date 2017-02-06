@@ -3,7 +3,7 @@
 extern "C" {
 	void Leaderboard::OnReady(LeaderboardFindResult_t* result, bool isFailure) {
 		if (isFailure || result->m_bLeaderboardFound == 0) {
-			ReportError(ERR_LEADERBOARD_NOT_FOUND);
+			ReportError(onError, ERR_LEADERBOARD_NOT_FOUND);
 			return;
 		}
 
@@ -16,7 +16,7 @@ extern "C" {
 
 	void Leaderboard::OnDownloaded(LeaderboardScoresDownloaded_t *result, bool isFailure) {
 		if (isFailure) {
-			ReportError(ERR_CANT_DOWNLOAD_SCORES);
+			ReportError(onError, ERR_CANT_DOWNLOAD_SCORES);
 			return;
 		}
 
@@ -49,33 +49,12 @@ extern "C" {
 
 	void Leaderboard::OnUploaded(LeaderboardScoreUploaded_t *result, bool isFailure) {
 		if (!result->m_bSuccess || isFailure) {
-			ReportError(ERR_CANT_UPLOAD_SCORES);
+			ReportError(onError, ERR_CANT_UPLOAD_SCORES);
 			return;
 		}
 
 		if (onUpload != NULL) {
 			onUpload();
-		}
-	}
-
-	void Leaderboard::Find(const char* name) {
-		SteamAPICall_t call = SteamUserStats()->FindLeaderboard(name);
-		findCallResult.Set(call, this, &Leaderboard::OnReady);
-	}
-
-	void Leaderboard::DownloadScores(ELeaderboardDataRequest mode, int32 from, int32 to) {
-		SteamAPICall_t call = SteamUserStats()->DownloadLeaderboardEntries(handle, mode, from, to);
-		scoresDownloadedResult.Set(call, this, &Leaderboard::OnDownloaded);
-	}
-
-	void Leaderboard::UploadScore(ELeaderboardUploadScoreMethod method, int32 score) {
-		SteamAPICall_t call = SteamUserStats()->UploadLeaderboardScore(handle, method, score, NULL, 0);
-		scoreUploadedResult.Set(call, this, &Leaderboard::OnUploaded);
-	}
-
-	void Leaderboard::ReportError(SteamworksError error) {
-		if (onError != NULL) {
-			onError(error);
 		}
 	}
 
@@ -93,7 +72,7 @@ extern "C" {
 		delete leaderboard;
 	}
 
-	API(void) Leaderboard_OnError(Leaderboard* leaderboard, LeaderboardErrorCallback errorCallback) {
+	API(void) Leaderboard_OnError(Leaderboard* leaderboard, ErrorCallback errorCallback) {
 		leaderboard->onError = errorCallback;
 	}
 
@@ -110,14 +89,17 @@ extern "C" {
 	}
 
 	API(void) Leaderboard_Find(Leaderboard* leaderboard, const char* name) {
-		leaderboard->Find(name);
+		SteamAPICall_t call = SteamUserStats()->FindLeaderboard(name);
+		leaderboard->findCallResult.Set(call, leaderboard, &Leaderboard::OnReady);
 	}
 
 	API(void) Leaderboard_DownloadScores(Leaderboard* leaderboard, ELeaderboardDataRequest data, int32 from, int32 to) {
-		leaderboard->DownloadScores(data, from, to);
+		SteamAPICall_t call = SteamUserStats()->DownloadLeaderboardEntries(leaderboard->handle, data, from, to);
+		leaderboard->scoresDownloadedResult.Set(call, leaderboard, &Leaderboard::OnDownloaded);
 	}
 
 	API(void) Leaderboard_UploadScore(Leaderboard* leaderboard, ELeaderboardUploadScoreMethod method, int32 score) {
-		leaderboard->UploadScore(method, score);
+		SteamAPICall_t call = SteamUserStats()->UploadLeaderboardScore(leaderboard->handle, method, score, NULL, 0);
+		leaderboard->scoreUploadedResult.Set(call, leaderboard, &Leaderboard::OnUploaded);
 	}
 }

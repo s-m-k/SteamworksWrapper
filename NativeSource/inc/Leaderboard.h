@@ -12,18 +12,15 @@ extern "C" {
 	} LeaderboardEntry;
 
 	typedef void(*LeaderboardFindCallback)();
-	typedef void(*LeaderboardErrorCallback)(SteamworksError error);
 	typedef void(*LeaderboardDownloadCallback)(LeaderboardEntry* scores, int count);
 	typedef void(*LeaderboardUploadCallback)();
 
 	class Leaderboard {
-	private:
+	public:
 		SteamLeaderboard_t handle = -1;
 		std::vector<LeaderboardEntry> downloadedEntries;
 
-		void ReportError(SteamworksError error);
-	public:
-		LeaderboardErrorCallback onError = NULL;
+		ErrorCallback onError = NULL;
 		LeaderboardFindCallback onFind = NULL;
 		LeaderboardDownloadCallback onDownload = NULL;
 		LeaderboardUploadCallback onUpload = NULL;
@@ -36,16 +33,12 @@ extern "C" {
 		void OnDownloaded(LeaderboardScoresDownloaded_t *result, bool isFailure);
 		void OnUploaded(LeaderboardScoreUploaded_t *result, bool isFailure);
 
-		void Find(const char* name);
-		void DownloadScores(ELeaderboardDataRequest mode, int32 from, int32 to);
-		void UploadScore(ELeaderboardUploadScoreMethod, int32 score);
-
 		~Leaderboard();
 	};
 
 	API(Leaderboard*) Leaderboard_Create();
 	API(void) Leaderboard_Destroy(Leaderboard* leaderboard);
-	API(void) Leaderboard_OnError(Leaderboard* leaderboard, LeaderboardErrorCallback errorCallback);
+	API(void) Leaderboard_OnError(Leaderboard* leaderboard, ErrorCallback errorCallback);
 	API(void) Leaderboard_OnFind(Leaderboard* leaderboard, LeaderboardFindCallback findCallback);
 	API(void) Leaderboard_OnDownloadScores(Leaderboard* leaderboard, LeaderboardDownloadCallback downloadCallback);
 	API(void) Leaderboard_OnUploadScore(Leaderboard* leaderboard, LeaderboardUploadCallback uploadCallback);
