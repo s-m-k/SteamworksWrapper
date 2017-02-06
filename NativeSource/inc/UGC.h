@@ -10,8 +10,13 @@ extern "C" {
 		PublishedFileId_t publishedFieldID;
 	} CreateItemResult;
 
+	typedef struct {
+		bool needsToAcceptLegalAgreement;
+		EResult result;
+	} SubmitItemResult;
+
 	typedef void(*WorkshopCreateItemCallback)(CreateItemResult);
-	typedef void(*WorkshopSubmitItemCallback)(EResult);
+	typedef void(*WorkshopSubmitItemCallback)(SubmitItemResult);
 
 	class Workshop {
 	public:
@@ -54,6 +59,7 @@ extern "C" {
 	API(BOOL) Workshop_SetItemContent(Workshop *workshop, const char *folder);
 	API(BOOL) Workshop_SetItemPreview(Workshop *workshop, const char *file);
 	API(void) Workshop_SubmitItemUpdate(Workshop *workshop, const char *changeNotes);
+	API(EItemUpdateStatus) Workshop_TrackUploadProgress(Workshop *workshop, uint64 *uploaded, uint64 *total);
 }
 
 #endif

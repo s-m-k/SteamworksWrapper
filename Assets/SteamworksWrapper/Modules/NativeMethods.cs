@@ -73,6 +73,9 @@ namespace SteamworksWrapper {
             [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
             public extern static CSteamID Friends_GetFriendByIndex(int index, int flags);
 
+            [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            public extern static void Friends_ActivateGameOverlayToWebPage([MarshalAs(UnmanagedType.LPStr)] string url);
+
 
             //USER
             [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
@@ -175,6 +178,9 @@ namespace SteamworksWrapper {
             [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
             public extern static void Workshop_OnSubmitItem(IntPtr workshop, OnWorkshopSubmitItem submitItem);
             
+            [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            public extern static ItemUpdateStatus Workshop_TrackUploadProgress(IntPtr workshop, ref ulong uploaded, ref ulong total);
+
         }
     }
 }

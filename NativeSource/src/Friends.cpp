@@ -17,4 +17,8 @@ extern "C" {
 		//copy the 64-bit data
 		return SteamFriends()->GetFriendByIndex(index, friendFlags).ConvertToUint64();
 	}
+
+	API(void) Friends_ActivateGameOverlayToWebPage(const char *url) {
+		SteamFriends()->ActivateGameOverlayToWebPage(url);
+	}
 }

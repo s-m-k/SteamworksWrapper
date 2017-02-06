@@ -49,7 +49,9 @@ namespace SteamworksWrapper {
             ERR_LEADERBOARD_NOT_FOUND = 0x2,
             ERR_LEADERBOARD_NOT_READY = 0x3,
             ERR_CANT_DOWNLOAD_SCORES = 0x4,
-            ERR_CANT_UPLOAD_SCORES = 0x5
+            ERR_CANT_UPLOAD_SCORES = 0x5,
+            ERR_CANT_CREATE_WORKSHOP_ITEM = 0x6,
+            ERR_CANT_SUBMIT_WORKSHOP_ITEM = 0x7
         }
 
         public enum LeaderboardDataRequest {
@@ -172,7 +174,7 @@ namespace SteamworksWrapper {
             IPBanned = 105,                    // the ip address has been banned from taking this action
             GSLTExpired = 106,                 // this token has expired from disuse; can be reset for use
         };
-
+        
         public enum PublishedFileVisibility {
             Public = 0,
             FriendsOnly = 1,

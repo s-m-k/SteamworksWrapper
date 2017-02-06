@@ -10,7 +10,18 @@ namespace SteamworksWrapper {
     public sealed partial class Steam : MonoBehaviour {
         delegate void OnWorkshopError(SteamworksError error, DetailedResult result);
         delegate void OnWorkshopCreateItem(WorkshopCreateItemResult itemResult);
-        delegate void OnWorkshopSubmitItem(DetailedResult result);
+        delegate void OnWorkshopSubmitItem(WorkshopSubmitItemResult result);
+
+        public enum UpdateParamErrors {
+            TITLE = 0x1,
+            DESCRIPTION = 0x2,
+            LANGUAGE = 0x3,
+            META = 0x4,
+            VISIBILITY = 0x5,
+            TAGS = 0x7,
+            CONTENT_PATH = 0x8,
+            PREVIEW_PATH = 0x9
+        }
 
         public enum WorkshopFileType {
             First = 0,
@@ -37,6 +48,15 @@ namespace SteamworksWrapper {
 
         };
 
+        public enum ItemUpdateStatus {
+            Invalid = 0, // The item update handle was invalid, job might be finished, listen to SubmitItemUpdateResult_t
+            Config = 1, // The item update is processing configuration data
+            PreparingContent = 2, // The item update is reading and processing content files
+            UploadingContent = 3, // The item update is uploading content changes to Steam
+            UploadingPreviewFile = 4, // The item update is uploading new preview file image
+            CommittingChanges = 5  // The item update is committing all changes
+        };
+
         [Serializable]
         public class WorkshopItemInfo {
             public ulong fileID = 0;
@@ -46,8 +66,17 @@ namespace SteamworksWrapper {
 
             public string meta = "";
 
+            [NonSerialized]
+            [XmlIgnore]
             public string contentFolderPath = "";
+
+            [NonSerialized]
+            [XmlIgnore]
             public string previewImagePath = "";
+
+            public string updateLanguage = "";
+
+            public PublishedFileVisibility visibility = PublishedFileVisibility.Private;
 
             public List<string> tags = new List<string>();
 
@@ -57,6 +86,10 @@ namespace SteamworksWrapper {
                     xml.Serialize(writer, this);
                     return writer.ToString();
                 }
+            }
+
+            public bool IsInvalid() {
+                return fileID == 0;
             }
 
             public static WorkshopItemInfo FromXML(string input) {
@@ -75,13 +108,17 @@ namespace SteamworksWrapper {
             public ulong publishedFieldID;
         }
 
-        public sealed class Workshop : UnmanagedDisposable {
-            bool ready = false;
+        [StructLayout(LayoutKind.Sequential)]
+        public struct WorkshopSubmitItemResult {
+            [MarshalAs(UnmanagedType.I1)]
+            public bool needsToAcceptLegalAgreement;
+            public DetailedResult result;
+        }
 
+        public sealed class Workshop : UnmanagedDisposable {
             public event Action<SteamworksError, DetailedResult> onError;
-            public event Action onNeedsToAcceptLegalAgreement;
-            public event Action<WorkshopItemInfo> onCreateItem;
-            public event Action onSubmitItem;
+            public event Action<WorkshopItemInfo, bool> onCreateItem;
+            public event Action<bool> onSubmitItem;
 
             OnWorkshopError workshopErrorDelegate;
             OnWorkshopCreateItem createItemDelegate;
@@ -109,18 +146,48 @@ namespace SteamworksWrapper {
                 NativeMethods.Workshop_CreateItem(pointer, fileType);
             }
 
-            public void UpdateItem(WorkshopItemInfo item, string changeNotes = "", string updateLanguage = "english") {
+            public UpdateParamErrors[] UpdateItem(WorkshopItemInfo item, string changeNotes = "") {
                 var fileID = item.fileID;
                 NativeMethods.Workshop_StartItemUpdate(pointer, fileID);
+                List<UpdateParamErrors> errors = new List<UpdateParamErrors>();
 
-                NativeMethods.Workshop_SetItemTitle(pointer, item.title);
-                NativeMethods.Workshop_SetItemDescription(pointer, item.description);
-                NativeMethods.Workshop_SetItemUpdateLanguage(pointer, updateLanguage);
-                NativeMethods.Workshop_SetItemMetadata(pointer, item.meta);
-                NativeMethods.Workshop_SetItemTags(pointer, item.tags.ToArray(), item.tags.Count);
-                NativeMethods.Workshop_SetItemContent(pointer, item.contentFolderPath);
-                NativeMethods.Workshop_SetItemPreview(pointer, item.previewImagePath);
-                NativeMethods.Workshop_SubmitItemUpdate(pointer, changeNotes);
+                if (!NativeMethods.Workshop_SetItemTitle(pointer, item.title)) {
+                    errors.Add(UpdateParamErrors.TITLE);
+                }
+
+                if (!NativeMethods.Workshop_SetItemDescription(pointer, item.description)) {
+                    errors.Add(UpdateParamErrors.DESCRIPTION);
+                }
+
+                if (!NativeMethods.Workshop_SetItemUpdateLanguage(pointer, item.updateLanguage)) {
+                    errors.Add(UpdateParamErrors.LANGUAGE);
+                }
+
+                if (!NativeMethods.Workshop_SetItemMetadata(pointer, item.meta)) {
+                    errors.Add(UpdateParamErrors.META);
+                }
+
+                if (!NativeMethods.Workshop_SetItemVisibility(pointer, item.visibility)) {
+                    errors.Add(UpdateParamErrors.VISIBILITY);
+                }
+
+                if (!NativeMethods.Workshop_SetItemTags(pointer, item.tags.ToArray(), item.tags.Count)) {
+                    errors.Add(UpdateParamErrors.TAGS);
+                }
+
+                if (!NativeMethods.Workshop_SetItemContent(pointer, item.contentFolderPath)) {
+                    errors.Add(UpdateParamErrors.CONTENT_PATH);
+                }
+
+                if (!NativeMethods.Workshop_SetItemPreview(pointer, item.previewImagePath)) {
+                    errors.Add(UpdateParamErrors.PREVIEW_PATH);
+                }
+
+                if (errors.Count == 0) {
+                    NativeMethods.Workshop_SubmitItemUpdate(pointer, changeNotes);
+                }
+
+                return errors.ToArray();
             }
 
             void OnWorkshopError(SteamworksError error, DetailedResult result) {
@@ -130,25 +197,34 @@ namespace SteamworksWrapper {
             }
 
             void OnCreateItem(WorkshopCreateItemResult result) {
-                if (result.needsToAcceptLegalAgreement) {
-                    if (onNeedsToAcceptLegalAgreement != null) {
-                        onNeedsToAcceptLegalAgreement();
-                    }
-
+                if (result.result != DetailedResult.OK) {
+                    OnWorkshopError(SteamworksError.ERR_CANT_CREATE_WORKSHOP_ITEM, result.result);
                     return;
                 }
 
                 if (onCreateItem != null) {
                     onCreateItem(new WorkshopItemInfo() {
                         fileID = result.publishedFieldID
-                    });
+                    }, result.needsToAcceptLegalAgreement);
                 }
             }
 
-            void OnSubmitItem(DetailedResult result) {
-                if (onSubmitItem != null) {
-                    onSubmitItem();
+            void OnSubmitItem(WorkshopSubmitItemResult result) {
+                if (result.result != DetailedResult.OK) {
+                    OnWorkshopError(SteamworksError.ERR_CANT_SUBMIT_WORKSHOP_ITEM, result.result);
+                    return;
                 }
+
+                if (onSubmitItem != null) {
+                    onSubmitItem(result.needsToAcceptLegalAgreement);
+                }
+            }
+
+            public ItemUpdateStatus TrackUploadProgress(out ulong uploaded, out ulong total) {
+                uploaded = 0;
+                total = 0;
+
+                return NativeMethods.Workshop_TrackUploadProgress(pointer, ref uploaded, ref total);
             }
 
             protected override void DestroyUnmanaged(IntPtr pointer) {

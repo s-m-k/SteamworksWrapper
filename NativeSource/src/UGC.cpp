@@ -17,7 +17,10 @@ extern "C" {
 		}
 
 		if (NULL != onSubmitItem) {
-			onSubmitItem(result->m_eResult);
+			SubmitItemResult s;
+			s.needsToAcceptLegalAgreement = result->m_bUserNeedsToAcceptWorkshopLegalAgreement;
+			s.result = result->m_eResult;
+			onSubmitItem(s);
 		}
 	}
 
@@ -112,5 +115,9 @@ extern "C" {
 	API(void) Workshop_SubmitItemUpdate(Workshop *workshop, const char *changeNote) {
 		SteamAPICall_t call = SteamUGC()->SubmitItemUpdate(workshop->updateHandle, changeNote);
 		workshop->submitItemResult.Set(call, workshop, &Workshop::OnSubmitItem);
+	}
+
+	API(EItemUpdateStatus) Workshop_TrackUploadProgress(Workshop *workshop, uint64 *uploaded, uint64 *total) {
+		return SteamUGC()->GetItemUpdateProgress(workshop->updateHandle, uploaded, total);
 	}
 }

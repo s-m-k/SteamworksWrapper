@@ -35,6 +35,10 @@ namespace SteamworksWrapper {
                 
                 return friends;
             }
+
+            public static void NavigateToURL(string url) {
+                NativeMethods.Friends_ActivateGameOverlayToWebPage(url);
+            }
         }
     }
 }
