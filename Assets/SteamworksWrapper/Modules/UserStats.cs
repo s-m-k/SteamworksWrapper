@@ -1,11 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.IO;
-using System;
-using System.Text;
 
 namespace SteamworksWrapper {
     public sealed partial class Steam : MonoBehaviour {
@@ -117,7 +110,7 @@ namespace SteamworksWrapper {
                     return false;
                 }
 
-                if (NativeMethods.UserStats_SetAchievement(name, true)) {
+                if (NativeMethods.UserStats_SetAchievement(name)) {
                     Debug.Log("Unlocked an achievement: " + name);
                     needsStatsToStore = true;
                     return true;

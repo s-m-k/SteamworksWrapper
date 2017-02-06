@@ -150,6 +150,9 @@
     <ClInclude Include="inc\UserStats.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="inc\UGC.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="inc\steam\steam_api.json">
@@ -173,6 +176,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\UserStats.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UGC.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

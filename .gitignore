@@ -22,3 +22,4 @@ Assets/Plugins/SteamworksWrapper/bin/x86_64/*
 !Assets/Plugins/SteamworksWrapper/bin/x86_64/SteamworksWrapper64.bundle
 !Assets/Plugins/SteamworksWrapper/bin/x86/SteamworksWrapper.bundle/*
 !Assets/Plugins/SteamworksWrapper/bin/x86_64/SteamworksWrapper64.bundle/*
+Assets/SteamworksWrapper/obj/*

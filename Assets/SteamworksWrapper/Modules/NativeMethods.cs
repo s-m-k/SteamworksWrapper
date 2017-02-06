@@ -1,11 +1,6 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
-using System.Collections;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.IO;
 using System;
-using System.Text;
 
 namespace SteamworksWrapper {
     public sealed partial class Steam : MonoBehaviour {
@@ -18,16 +13,20 @@ namespace SteamworksWrapper {
 #endif
 
             [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            [return: MarshalAs(UnmanagedType.I1)]
             public extern static bool InitializeSteam();
 
             [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            [return: MarshalAs(UnmanagedType.I1)]
             public extern static bool IsRestartRequired(uint appId);
 
             [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
-            public extern static void ShutdownSteam();
+            [return: MarshalAs(UnmanagedType.I1)]
+            public extern static bool ShutdownSteam();
 
             [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
-            public extern static void RunCallbacks();
+            [return: MarshalAs(UnmanagedType.I1)]
+            public extern static bool RunCallbacks();
 
             
             //LEADERBOARDS
@@ -80,30 +79,39 @@ namespace SteamworksWrapper {
 
             //USERSTATS
             [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            [return: MarshalAs(UnmanagedType.I1)]
             public extern static bool UserStats_GetStatInt([MarshalAs(UnmanagedType.LPStr)] string name, ref int stat);
 
             [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            [return: MarshalAs(UnmanagedType.I1)]
             public extern static bool UserStats_SetStatInt([MarshalAs(UnmanagedType.LPStr)] string name, int stat);
 
             [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            [return: MarshalAs(UnmanagedType.I1)]
             public extern static bool UserStats_GetStatFloat([MarshalAs(UnmanagedType.LPStr)] string name, ref float stat);
 
             [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            [return: MarshalAs(UnmanagedType.I1)]
             public extern static bool UserStats_SetStatFloat([MarshalAs(UnmanagedType.LPStr)] string name, float stat);
 
             [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
-            public extern static bool UserStats_SetAchievement([MarshalAs(UnmanagedType.LPStr)] string name, bool achievement);
+            [return: MarshalAs(UnmanagedType.I1)]
+            public extern static bool UserStats_SetAchievement([MarshalAs(UnmanagedType.LPStr)] string name);
 
             [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            [return: MarshalAs(UnmanagedType.I1)]
             public extern static bool UserStats_IsAchievementSet([MarshalAs(UnmanagedType.LPStr)] string name);
             
             [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            [return: MarshalAs(UnmanagedType.I1)]
             public extern static bool UserStats_ResetAllStatsAndRemoveAchievements();
 
             [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            [return: MarshalAs(UnmanagedType.I1)]
             public extern static bool UserStats_StoreStats();
 
             [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            [return: MarshalAs(UnmanagedType.I1)]
             public extern static bool UserStats_RequestCurrentStats();
         }
     }

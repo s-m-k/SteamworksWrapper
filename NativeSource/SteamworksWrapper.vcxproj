@@ -214,6 +214,7 @@
     <ClInclude Include="inc\steam\steam_api_flat.h" />
     <ClInclude Include="inc\steam\steam_api_internal.h" />
     <ClInclude Include="inc\steam\steam_gameserver.h" />
+    <ClInclude Include="inc\UGC.h" />
     <ClInclude Include="inc\User.h" />
     <ClInclude Include="inc\UserStats.h" />
   </ItemGroup>
@@ -225,6 +226,7 @@
     <ClCompile Include="src\Friends.cpp" />
     <ClCompile Include="src\Leaderboard.cpp" />
     <ClCompile Include="src\SteamworksWrapper.cpp" />
+    <ClCompile Include="src\UGC.cpp" />
     <ClCompile Include="src\User.cpp" />
     <ClCompile Include="src\UserStats.cpp" />
   </ItemGroup>
