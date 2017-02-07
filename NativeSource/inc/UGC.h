@@ -18,6 +18,9 @@ extern "C" {
 	typedef void(*WorkshopCreateItemCallback)(CreateItemResult);
 	typedef void(*WorkshopSubmitItemCallback)(SubmitItemResult);
 
+	typedef void(*WorkshopSubscribedItemCallback)(PublishedFileId_t);
+	typedef void(*WorkshopUnsubscribedItemCallback)(PublishedFileId_t);
+
 	class Workshop {
 	public:
 		AppId_t appId;
@@ -26,14 +29,22 @@ extern "C" {
 
 		CCallResult<Workshop, CreateItemResult_t> createItemResult;
 		CCallResult<Workshop, SubmitItemUpdateResult_t> submitItemResult;
+		CCallResult<Workshop, RemoteStoragePublishedFileSubscribed_t> steamSubscribedResult;
+		CCallResult<Workshop, RemoteStoragePublishedFileUnsubscribed_t> steamUnsubscribedResult;
 
 		UGCUpdateHandle_t updateHandle;
 		ErrorCallbackDetailed onError = NULL;
 		WorkshopCreateItemCallback onCreateItem = NULL;
 		WorkshopSubmitItemCallback onSubmitItem = NULL;
 
+		WorkshopSubscribedItemCallback onSubscribedItem = NULL;
+		WorkshopUnsubscribedItemCallback onUnsubscribedItem = NULL;
+
 		void OnCreateItem(CreateItemResult_t *result, bool isFailure);
 		void OnSubmitItem(SubmitItemUpdateResult_t *result, bool isFailure);
+
+		void OnSubscribedItem(RemoteStoragePublishedFileSubscribed_t *result, bool isFailure);
+		void OnUnsubscribedItem(RemoteStoragePublishedFileUnsubscribed_t *result, bool isFailure);
 
 		Workshop(AppId_t appId);
 		~Workshop();
@@ -60,6 +71,16 @@ extern "C" {
 	API(BOOL) Workshop_SetItemPreview(Workshop *workshop, const char *file);
 	API(void) Workshop_SubmitItemUpdate(Workshop *workshop, const char *changeNotes);
 	API(EItemUpdateStatus) Workshop_TrackUploadProgress(Workshop *workshop, uint64 *uploaded, uint64 *total);
+
+	API(void) Workshop_OnSubscribedItem(Workshop *workshop, WorkshopSubscribedItemCallback);
+	API(void) Workshop_OnUnsubscribedItem(Workshop *workshop, WorkshopUnsubscribedItemCallback);
+
+	API(BOOL) UGC_GetItemInstallInfo(PublishedFileId_t fileID, uint64 *sizeOnDisk, char *folder, uint32 folderSize, uint32 *timeStamp);
+	API(BOOL) UGC_TrackDownloadProgress(PublishedFileId_t fileID, uint64 *bytesDownloaded, uint64 *bytesTotal);
+	API(uint32) UGC_GetSubscribedItemsCount();
+	API(uint32) UGC_GetSubscribedItems(PublishedFileId_t *items, uint32 maxEntries);
+	API(uint32) UGC_GetItemState(PublishedFileId_t fileID);
+	API(BOOL) UGC_Download(PublishedFileId_t fileID, BOOL highPriority);
 }
 
 #endif

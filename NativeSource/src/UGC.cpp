@@ -8,6 +8,9 @@ extern "C" {
 	Workshop::~Workshop() {
 		createItemResult.Cancel();
 		submitItemResult.Cancel();
+
+		steamSubscribedResult.Cancel();
+		steamUnsubscribedResult.Cancel();
 	}
 
 	void Workshop::OnSubmitItem(SubmitItemUpdateResult_t *result, bool isFailure) {
@@ -37,6 +40,26 @@ extern "C" {
 
 		if (NULL != onCreateItem) {
 			onCreateItem(c);
+		}
+	}
+
+	void Workshop::OnSubscribedItem(RemoteStoragePublishedFileSubscribed_t *result, bool isFailure) {
+		if (isFailure) {
+			ReportErrorDetailed(onError, ERR_CANT_SUBSCRIBE_ITEM, k_EResultFail);
+		}
+
+		if (appId == result->m_nAppID && NULL != onSubscribedItem) {
+			onSubscribedItem(result->m_nPublishedFileId);
+		}
+	}
+
+	void Workshop::OnUnsubscribedItem(RemoteStoragePublishedFileUnsubscribed_t *result, bool isFailure) {
+		if (isFailure) {
+			ReportErrorDetailed(onError, ERR_CANT_UNSUBSCRIBE_ITEM, k_EResultFail);
+		}
+
+		if (appId == result->m_nAppID && NULL != onSubscribedItem) {
+			onUnsubscribedItem(result->m_nPublishedFileId);
 		}
 	}
 
@@ -119,5 +142,39 @@ extern "C" {
 
 	API(EItemUpdateStatus) Workshop_TrackUploadProgress(Workshop *workshop, uint64 *uploaded, uint64 *total) {
 		return SteamUGC()->GetItemUpdateProgress(workshop->updateHandle, uploaded, total);
+	}
+
+	API(void) Workshop_OnSubscribedItem(Workshop *workshop, WorkshopSubscribedItemCallback callback) {
+		workshop->onSubscribedItem = callback;
+		workshop->steamSubscribedResult.Set(NULL, workshop, &Workshop::OnSubscribedItem);
+	}
+
+	API(void) Workshop_OnUnsubscribedItem(Workshop *workshop, WorkshopUnsubscribedItemCallback callback) {
+		workshop->onUnsubscribedItem = callback;
+		workshop->steamUnsubscribedResult.Set(NULL, workshop, &Workshop::OnUnsubscribedItem);
+	}
+
+	API(BOOL) UGC_GetItemInstallInfo(PublishedFileId_t fileID, uint64 *sizeOnDisk, char *folder, uint32 folderSize, uint32 *timeStamp) {
+		return SteamUGC()->GetItemInstallInfo(fileID, sizeOnDisk, folder, folderSize, timeStamp);
+	}
+
+	API(BOOL) UGC_TrackDownloadProgress(PublishedFileId_t fileID, uint64 *bytesDownloaded, uint64 *bytesTotal) {
+		return SteamUGC()->GetItemDownloadInfo(fileID, bytesDownloaded, bytesTotal);
+	}
+
+	API(uint32) UGC_GetSubscribedItemsCount() {
+		return SteamUGC()->GetNumSubscribedItems();
+	}
+
+	API(uint32) UGC_GetSubscribedItems(PublishedFileId_t *items, uint32 maxEntries) {
+		return SteamUGC()->GetSubscribedItems(items, maxEntries);
+	}
+
+	API(uint32) UGC_GetItemState(PublishedFileId_t fileID) {
+		return SteamUGC()->GetItemState(fileID);
+	}
+
+	API(BOOL) UGC_Download(PublishedFileId_t fileID, BOOL highPriority) {
+		return SteamUGC()->DownloadItem(fileID, highPriority);
 	}
 }

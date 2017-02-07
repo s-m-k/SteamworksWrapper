@@ -80,16 +80,22 @@ namespace SteamworksWrapper {
             }
 
             public void Find(string name) {
+                AssertDisposed();
+
                 NativeMethods.Leaderboard_Find(pointer, name);
             }
 
             public void DownloadScores(LeaderboardDataRequest dataRequest, int from, int to) {
+                AssertDisposed();
                 AssertReady();
+
                 NativeMethods.Leaderboard_DownloadScores(pointer, dataRequest, from, to);
             }
 
             public void UploadScore(LeaderboardUpdateMethod method, int score) {
+                AssertDisposed();
                 AssertReady();
+
                 NativeMethods.Leaderboard_UploadScore(pointer, method, score);
             }
 

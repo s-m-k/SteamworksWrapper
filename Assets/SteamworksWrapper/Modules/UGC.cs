@@ -12,6 +12,9 @@ namespace SteamworksWrapper {
         delegate void OnWorkshopCreateItem(WorkshopCreateItemResult itemResult);
         delegate void OnWorkshopSubmitItem(WorkshopSubmitItemResult result);
 
+        public delegate void OnWorkshopSubscribedItem(ulong fileID);
+        public delegate void OnWorkshopUnsubscribedItem(ulong fileID);
+
         public enum UpdateParamErrors {
             TITLE = 0x1,
             DESCRIPTION = 0x2,
@@ -55,6 +58,16 @@ namespace SteamworksWrapper {
             UploadingContent = 3, // The item update is uploading content changes to Steam
             UploadingPreviewFile = 4, // The item update is uploading new preview file image
             CommittingChanges = 5  // The item update is committing all changes
+        };
+
+        public enum WorkshopItemState {
+            None = 0,   // item not tracked on client
+            Subscribed = 1, // current user is subscribed to this item. Not just cached.
+            LegacyItem = 2, // item was created with ISteamRemoteStorage
+            Installed = 4,  // item is installed and usable (but maybe out of date)
+            NeedsUpdate = 8,    // items needs an update. Either because it's not installed yet or creator updated content
+            Downloading = 16,   // item update is currently downloading
+            DownloadPending = 32,   // DownloadItem() was called for this item, content isn't available until DownloadItemResult_t is fired
         };
 
         [Serializable]
@@ -115,7 +128,72 @@ namespace SteamworksWrapper {
             public DetailedResult result;
         }
 
-        public sealed class Workshop : UnmanagedDisposable {
+        public class WorkshopItem {
+            private ulong fileID;
+            private string folder;
+            private uint timestamp;
+            private ulong sizeOnDisk;
+
+            public ulong GetFileID() {
+                return fileID;
+            }
+
+            public string GetFolder() {
+                return folder;
+            }
+
+            public uint GetTimestamp() {
+                return timestamp;
+            }
+
+            public ulong GetSizeOnDisk() {
+                return sizeOnDisk;
+            }
+
+            public bool IsInvalid() {
+                return fileID == 0;
+            }
+
+            public WorkshopItem(ulong fileID) {
+                this.fileID = fileID;
+                folder = "";
+            }
+
+            public bool TrackDownloadProgress(out ulong bytesDownloaded, out ulong totalBytes) {
+                bytesDownloaded = 0;
+                totalBytes = 0;
+                return NativeMethods.UGC_TrackDownloadProgress(fileID, ref bytesDownloaded, ref totalBytes);
+            }
+
+            public bool RefreshInstallInfo() {
+                const int folderStrSize = 2048;
+                IntPtr strPtr = Marshal.AllocHGlobal(folderStrSize);
+
+                sizeOnDisk = 0;
+                timestamp = 0;
+                folder = "";
+
+                if (!NativeMethods.UGC_GetItemInstallInfo(fileID, ref sizeOnDisk, strPtr, 2048, ref timestamp)) {
+                    Marshal.FreeHGlobal(strPtr);
+                    return false;
+                }
+
+                folder = Marshal.PtrToStringAnsi(strPtr);
+                Marshal.FreeHGlobal(strPtr);
+
+                return true;
+            }
+
+            public bool Download(bool highPriority) {
+                return NativeMethods.UGC_Download(fileID, highPriority);
+            }
+
+            public WorkshopItemState GetState() {
+                return NativeMethods.UGC_GetItemState(fileID);
+            }
+        }
+
+        public sealed class UserGeneratedContent : UnmanagedDisposable {
             public event Action<SteamworksError, DetailedResult> onError;
             public event Action<WorkshopItemInfo, bool> onCreateItem;
             public event Action<bool> onSubmitItem;
@@ -123,16 +201,19 @@ namespace SteamworksWrapper {
             OnWorkshopError workshopErrorDelegate;
             OnWorkshopCreateItem createItemDelegate;
             OnWorkshopSubmitItem submitItemDelegate;
-            
-            public static Workshop Create() {
+
+            OnWorkshopSubscribedItem subscribedItem;
+            OnWorkshopUnsubscribedItem unsubscribedItem;
+
+            public static UserGeneratedContent Create() {
                 if (!steamInitialized) {
                     throw new Exception("Leaderboard error: Steam is not initialized.");
                 }
 
-                return new Workshop();
+                return new UserGeneratedContent();
             }
 
-            private Workshop(): base(NativeMethods.Workshop_Create(appId)) {
+            private UserGeneratedContent(): base(NativeMethods.Workshop_Create(appId)) {
                 workshopErrorDelegate = new OnWorkshopError(OnWorkshopError);
                 createItemDelegate = new OnWorkshopCreateItem(OnCreateItem);
                 submitItemDelegate = new OnWorkshopSubmitItem(OnSubmitItem);
@@ -143,14 +224,18 @@ namespace SteamworksWrapper {
             }
 
             public void CreateItem(WorkshopFileType fileType) {
+                AssertDisposed();
+
                 NativeMethods.Workshop_CreateItem(pointer, fileType);
             }
 
             public UpdateParamErrors[] UpdateItem(WorkshopItemInfo item, string changeNotes = "") {
+                AssertDisposed();
+
                 var fileID = item.fileID;
                 NativeMethods.Workshop_StartItemUpdate(pointer, fileID);
                 List<UpdateParamErrors> errors = new List<UpdateParamErrors>();
-
+ 
                 if (!NativeMethods.Workshop_SetItemTitle(pointer, item.title)) {
                     errors.Add(UpdateParamErrors.TITLE);
                 }
@@ -190,6 +275,36 @@ namespace SteamworksWrapper {
                 return errors.ToArray();
             }
 
+            public void ListenToSubscribed(OnWorkshopSubscribedItem e) {
+                AssertDisposed();
+
+                subscribedItem = new OnWorkshopSubscribedItem(e);
+                NativeMethods.Workshop_OnSubscribedItem(pointer, subscribedItem);
+            }
+
+            public void ListenToUnsubscribed(OnWorkshopUnsubscribedItem e) {
+                AssertDisposed();
+
+                unsubscribedItem = new OnWorkshopUnsubscribedItem(e);
+                NativeMethods.Workshop_OnUnsubscribedItem(pointer, unsubscribedItem);
+            }
+
+            public WorkshopItem[] GetSubscribedItems() {
+                AssertDisposed();
+
+                var count = NativeMethods.UGC_GetSubscribedItemsCount();
+                ulong[] outIDs = new ulong[count];
+                uint readCount = NativeMethods.UGC_GetSubscribedItems(outIDs, count);
+
+                WorkshopItem[] outItems = new WorkshopItem[readCount];
+
+                for (int i = 0; i < readCount; i++) {
+                    outItems[i] = new WorkshopItem(outIDs[i]);
+                }
+
+                return outItems;
+            }
+
             void OnWorkshopError(SteamworksError error, DetailedResult result) {
                 if (onError != null) {
                     onError(error, result);
@@ -221,6 +336,8 @@ namespace SteamworksWrapper {
             }
 
             public ItemUpdateStatus TrackUploadProgress(out ulong uploaded, out ulong total) {
+                AssertDisposed();
+
                 uploaded = 0;
                 total = 0;
 
@@ -229,6 +346,18 @@ namespace SteamworksWrapper {
 
             protected override void DestroyUnmanaged(IntPtr pointer) {
                 NativeMethods.Workshop_Destroy(pointer);
+            }
+        }
+
+        private static UserGeneratedContent mainUGC = null;
+
+        public static UserGeneratedContent UGC {
+            get {
+                if (mainUGC == null) {
+                    mainUGC = UserGeneratedContent.Create();
+                }
+
+                return mainUGC;
             }
         }
     }

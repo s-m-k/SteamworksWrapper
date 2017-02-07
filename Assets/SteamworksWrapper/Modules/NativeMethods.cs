@@ -180,7 +180,33 @@ namespace SteamworksWrapper {
             
             [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
             public extern static ItemUpdateStatus Workshop_TrackUploadProgress(IntPtr workshop, ref ulong uploaded, ref ulong total);
+    
+            [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            [return: MarshalAs(UnmanagedType.I1)]
+            public extern static bool UGC_GetItemInstallInfo(ulong fileID, ref ulong sizeOnDisk, IntPtr folder, uint folderSize, ref uint timestamp);
 
+            [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            [return: MarshalAs(UnmanagedType.I1)]
+            public extern static bool UGC_TrackDownloadProgress(ulong fileID, ref ulong bytesDownloaded, ref ulong bytesTotal);
+
+            [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            public extern static uint UGC_GetSubscribedItemsCount();
+
+            [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            public extern static uint UGC_GetSubscribedItems([MarshalAs(UnmanagedType.LPArray,ArraySubType = UnmanagedType.U8,SizeParamIndex = 1)]ulong[] items, uint maxEntries);
+
+            [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            public extern static void Workshop_OnSubscribedItem(IntPtr workshop, OnWorkshopSubscribedItem subscribedItem);
+
+            [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            public extern static void Workshop_OnUnsubscribedItem(IntPtr workshop, OnWorkshopUnsubscribedItem unsubscribedItem);
+
+            [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            public extern static WorkshopItemState UGC_GetItemState(ulong fileID);
+
+            [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            [return: MarshalAs(UnmanagedType.I1)]
+            public extern static bool UGC_Download(ulong fileID, [MarshalAs(UnmanagedType.I1)] bool highPriority);
         }
     }
 }

@@ -5,24 +5,30 @@ using System;
 namespace SteamworksWrapper {
     public abstract class UnmanagedDisposable : IDisposable {
         bool disposed = false;
-        readonly protected IntPtr pointer;
+        protected IntPtr pointer;
         
         protected UnmanagedDisposable(IntPtr pointer) {
             this.pointer = pointer;
         }
-        
-        ~UnmanagedDisposable() {
-            DisposeUnmanaged();
-        }
 
         public void Dispose() {
-            DisposeUnmanaged();
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-        void DisposeUnmanaged() {
+        protected void AssertDisposed() {
+            if (disposed) {
+                throw new ObjectDisposedException("Object has been disposed.");
+            }
+        }
+
+        protected void Dispose(bool disposing) {
             if (!disposed) {
-                DestroyUnmanaged(pointer);
+                if (disposing) {
+                    DestroyUnmanaged(pointer);
+                    pointer = IntPtr.Zero;
+                }
+
                 disposed = true;
             }
         }

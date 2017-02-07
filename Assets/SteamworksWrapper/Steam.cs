@@ -57,6 +57,8 @@ namespace SteamworksWrapper {
                 return;
             }
 
+            UGC.Dispose();
+
             Debug.Log("Shutting down the Steam API.");
             NativeMethods.ShutdownSteam();
         }
