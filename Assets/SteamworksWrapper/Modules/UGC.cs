@@ -274,21 +274,7 @@ namespace SteamworksWrapper {
 
                 return errors.ToArray();
             }
-
-            public void ListenToSubscribed(OnWorkshopSubscribedItem e) {
-                AssertDisposed();
-
-                subscribedItem = new OnWorkshopSubscribedItem(e);
-                NativeMethods.Workshop_OnSubscribedItem(pointer, subscribedItem);
-            }
-
-            public void ListenToUnsubscribed(OnWorkshopUnsubscribedItem e) {
-                AssertDisposed();
-
-                unsubscribedItem = new OnWorkshopUnsubscribedItem(e);
-                NativeMethods.Workshop_OnUnsubscribedItem(pointer, unsubscribedItem);
-            }
-
+            
             public WorkshopItem[] GetSubscribedItems() {
                 AssertDisposed();
 

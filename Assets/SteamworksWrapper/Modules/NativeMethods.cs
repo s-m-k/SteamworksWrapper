@@ -196,12 +196,6 @@ namespace SteamworksWrapper {
             public extern static uint UGC_GetSubscribedItems([MarshalAs(UnmanagedType.LPArray,ArraySubType = UnmanagedType.U8,SizeParamIndex = 1)]ulong[] items, uint maxEntries);
 
             [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
-            public extern static void Workshop_OnSubscribedItem(IntPtr workshop, OnWorkshopSubscribedItem subscribedItem);
-
-            [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
-            public extern static void Workshop_OnUnsubscribedItem(IntPtr workshop, OnWorkshopUnsubscribedItem unsubscribedItem);
-
-            [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
             public extern static WorkshopItemState UGC_GetItemState(ulong fileID);
 
             [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]

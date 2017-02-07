@@ -144,16 +144,6 @@ extern "C" {
 		return SteamUGC()->GetItemUpdateProgress(workshop->updateHandle, uploaded, total);
 	}
 
-	API(void) Workshop_OnSubscribedItem(Workshop *workshop, WorkshopSubscribedItemCallback callback) {
-		workshop->onSubscribedItem = callback;
-		workshop->steamSubscribedResult.Set(NULL, workshop, &Workshop::OnSubscribedItem);
-	}
-
-	API(void) Workshop_OnUnsubscribedItem(Workshop *workshop, WorkshopUnsubscribedItemCallback callback) {
-		workshop->onUnsubscribedItem = callback;
-		workshop->steamUnsubscribedResult.Set(NULL, workshop, &Workshop::OnUnsubscribedItem);
-	}
-
 	API(BOOL) UGC_GetItemInstallInfo(PublishedFileId_t fileID, uint64 *sizeOnDisk, char *folder, uint32 folderSize, uint32 *timeStamp) {
 		return SteamUGC()->GetItemInstallInfo(fileID, sizeOnDisk, folder, folderSize, timeStamp);
 	}

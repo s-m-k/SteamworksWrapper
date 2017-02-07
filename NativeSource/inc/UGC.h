@@ -72,9 +72,6 @@ extern "C" {
 	API(void) Workshop_SubmitItemUpdate(Workshop *workshop, const char *changeNotes);
 	API(EItemUpdateStatus) Workshop_TrackUploadProgress(Workshop *workshop, uint64 *uploaded, uint64 *total);
 
-	API(void) Workshop_OnSubscribedItem(Workshop *workshop, WorkshopSubscribedItemCallback);
-	API(void) Workshop_OnUnsubscribedItem(Workshop *workshop, WorkshopUnsubscribedItemCallback);
-
 	API(BOOL) UGC_GetItemInstallInfo(PublishedFileId_t fileID, uint64 *sizeOnDisk, char *folder, uint32 folderSize, uint32 *timeStamp);
 	API(BOOL) UGC_TrackDownloadProgress(PublishedFileId_t fileID, uint64 *bytesDownloaded, uint64 *bytesTotal);
 	API(uint32) UGC_GetSubscribedItemsCount();
