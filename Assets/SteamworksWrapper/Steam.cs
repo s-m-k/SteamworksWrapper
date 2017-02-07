@@ -43,7 +43,12 @@ namespace SteamworksWrapper {
 
                 instance = obj.AddComponent<Steam>();
             } catch (Exception e) {
-                Debug.LogError("Error: " + e.Message);
+                if (e is DllNotFoundException) {
+                    Debug.LogWarning("No SteamWrapper libraries found. Running in Steam-free mode.");
+                } else {
+                    Debug.LogWarning("There was a problem running Steam: " + e.Message);
+                }
+
                 steamInitialized = false;
             }
         }
