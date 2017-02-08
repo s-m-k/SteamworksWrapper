@@ -7,6 +7,7 @@ The only purpose of this wrapper is to write a simple and robust library that's 
 
 Basic principles of the library:
 - Keep it simple and safe - simple C-like API (on the native-managed boundary), no weird memory hacks etc.
+- Super simple C++ to C# API - no function pointers (ugly, but reliable), limited data structures etc.
 - No bullshit - leave the SDK bullshit mess on the C++ side (e.g. no call results spaghetti in C# code, all of it is done in the native side)
 - Expand it incrementally - do only what I actually need for my game, don't waste time on functionality I don't want to use
 - Don't necessarily map Steam API directly to C# - I don't like some Valve decisions regarding some names (might break SDK docs compatibility, but it's for my own comfort not yours)
@@ -23,7 +24,7 @@ try {
         testLeaderboard.DownloadScores(LeaderboardDataRequest.GLOBAL, 0, 10);
     };
 
-    testLeaderboard.onDownloadScores += (SteamWrapper.LeaderboardEntry[] entries) => {
+    testLeaderboard.onDownloadScores += (Steam.LeaderboardEntry[] entries) => {
         Debug.Log("Found the leaderboard!");
         for (int i = 0; i < entries.Length; i++) {
             Debug.Log(entries[i].steamID + " " + entries[i].score);
@@ -36,6 +37,6 @@ try {
 }
 ```
 
-So far it only supports leaderboards in a limited way, achievements and some stats. You can also get a list of friends, friend names and your own ID. It's all very limited, but that's what I need for my game. Feel free to expand it.
+So far it only supports leaderboards and workshop in a limited way, achievements and some stats. You can also get a list of friends, friend names and your own ID. It's all very limited, but that's what I need for my game. Feel free to expand it.
 
 It's WIP and not all of it has been tested yet, so again, use at your own risk.
