@@ -4,19 +4,14 @@ using System;
 
 namespace SteamworksWrapper {
     public sealed partial class Steam : MonoBehaviour {
-        delegate void OnLeaderboardError(SteamworksError error);
-        delegate void OnLeaderboardFind();
-        delegate void OnLeaderboardDownloadScores([MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]LeaderboardEntry[] entries, int count);
-        delegate void OnLeaderboardUploadScore();
-
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        [StructLayout(LayoutKind.Sequential)]
         public struct LeaderboardEntry {
             public CSteamID steamID;
             public int globalRank;
             public int score;
         }
 
-        public sealed class Leaderboard : UnmanagedDisposable {
+        public sealed class Leaderboard : UnmanagedDisposable, IPollEntity {
             bool ready = false;
             
             public event Action onFind;
@@ -24,10 +19,14 @@ namespace SteamworksWrapper {
             public event Action onUploadScore;
             public event Action<SteamworksError> onError;
 
-            OnLeaderboardError errorDelegate;
-            OnLeaderboardDownloadScores downloadScoresDelegate;
-            OnLeaderboardFind findDelegate;
-            OnLeaderboardUploadScore uploadScoreDelegate;
+            PolledCallback callback = null;
+
+            public bool IsDone {
+                get {
+                    AssertDisposed();
+                    return NativeMethods.Leaderboard_PollIsDone(pointer);
+                }
+            }
 
             public static Leaderboard Create() {
                 if (!steamInitialized) {
@@ -38,40 +37,55 @@ namespace SteamworksWrapper {
             }
 
             private Leaderboard(): base(NativeMethods.Leaderboard_Create()) {
-                errorDelegate = new OnLeaderboardError(OnError);
-                findDelegate = new OnLeaderboardFind(OnFind);
-                downloadScoresDelegate = new OnLeaderboardDownloadScores(OnDownloadScores);
-                uploadScoreDelegate = new OnLeaderboardUploadScore(OnUploadScore);
-
-                NativeMethods.Leaderboard_OnError(pointer, errorDelegate);
-                NativeMethods.Leaderboard_OnFind(pointer, findDelegate);
-                NativeMethods.Leaderboard_OnDownloadScores(pointer, downloadScoresDelegate);
-                NativeMethods.Leaderboard_OnUploadScore(pointer, uploadScoreDelegate);
             }
 
             protected override void DestroyUnmanaged(IntPtr pointer) {
                 NativeMethods.Leaderboard_Destroy(pointer);
             }
 
-            void OnDownloadScores(LeaderboardEntry[] scores, int count) {
+            protected override void DestroyManaged() {
+                CancelCallback(ref callback);
+            }
+
+            void OnDownloadScores() {
+                AssertDisposed();
+
+                if (AssertError()) {
+                    return;
+                }
+
+                ulong count = NativeMethods.Leaderboard_GetEntriesCount(pointer);
+                LeaderboardEntry[] scores = new LeaderboardEntry[count];
+
+                for (ulong i = 0; i < count; i++) {
+                    NativeMethods.Leaderboard_GetEntry(pointer, i, ref scores[i]);
+                }
+
                 if (onDownloadScores != null) {
                     onDownloadScores(scores);
                 }
             }
 
             void OnUploadScore() {
+                AssertDisposed();
+
+                if (AssertError()) {
+                    return;
+                }
+
                 if (onUploadScore != null) {
                     onUploadScore();
                 }
             }
 
-            void OnError(SteamworksError error) {
-                if (onError != null) {
-                    onError(error);
-                }
-            }
-
             void OnFind() {
+                AssertDisposed();
+
+                if (AssertError()) {
+                    ready = false;
+                    return;
+                }
+
                 ready = true;
 
                 if (onFind != null) {
@@ -79,10 +93,23 @@ namespace SteamworksWrapper {
                 }
             }
 
+            bool AssertError() {
+                SteamworksError error = NativeMethods.Leaderboard_GetError(pointer);
+
+                if (error != SteamworksError.ERR_NO_ERROR && onError != null) {
+                    onError(error);
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
             public void Find(string name) {
                 AssertDisposed();
 
                 NativeMethods.Leaderboard_Find(pointer, name);
+                CancelCallback(ref callback);
+                WaitForDone(this, OnFind);
             }
 
             public void DownloadScores(LeaderboardDataRequest dataRequest, int from, int to) {
@@ -90,6 +117,8 @@ namespace SteamworksWrapper {
                 AssertReady();
 
                 NativeMethods.Leaderboard_DownloadScores(pointer, dataRequest, from, to);
+                CancelCallback(ref callback);
+                WaitForDone(this, OnDownloadScores);
             }
 
             public void UploadScore(LeaderboardUpdateMethod method, int score) {
@@ -97,6 +126,8 @@ namespace SteamworksWrapper {
                 AssertReady();
 
                 NativeMethods.Leaderboard_UploadScore(pointer, method, score);
+                CancelCallback(ref callback);
+                WaitForDone(this, OnUploadScore);
             }
 
             void AssertReady() {

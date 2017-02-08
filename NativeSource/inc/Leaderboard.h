@@ -6,24 +6,19 @@
 
 extern "C" {
 	typedef struct {
-		CSteamID steamId;
+		CSteamIDRet steamId;
 		int32 globalRank;
 		int32 score;
 	} LeaderboardEntry;
 
-	typedef void(*LeaderboardFindCallback)();
+	/*typedef void(*LeaderboardFindCallback)();
 	typedef void(*LeaderboardDownloadCallback)(LeaderboardEntry* scores, int count);
-	typedef void(*LeaderboardUploadCallback)();
+	typedef void(*LeaderboardUploadCallback)();*/
 
-	class Leaderboard {
+	class Leaderboard : public PollEntity {
 	public:
 		SteamLeaderboard_t handle = -1;
 		std::vector<LeaderboardEntry> downloadedEntries;
-
-		ErrorCallback onError = NULL;
-		LeaderboardFindCallback onFind = NULL;
-		LeaderboardDownloadCallback onDownload = NULL;
-		LeaderboardUploadCallback onUpload = NULL;
 
 		CCallResult<Leaderboard, LeaderboardFindResult_t> findCallResult;
 		CCallResult<Leaderboard, LeaderboardScoresDownloaded_t> scoresDownloadedResult;
@@ -38,10 +33,13 @@ extern "C" {
 
 	API(Leaderboard*) Leaderboard_Create();
 	API(void) Leaderboard_Destroy(Leaderboard* leaderboard);
-	API(void) Leaderboard_OnError(Leaderboard* leaderboard, ErrorCallback errorCallback);
-	API(void) Leaderboard_OnFind(Leaderboard* leaderboard, LeaderboardFindCallback findCallback);
-	API(void) Leaderboard_OnDownloadScores(Leaderboard* leaderboard, LeaderboardDownloadCallback downloadCallback);
-	API(void) Leaderboard_OnUploadScore(Leaderboard* leaderboard, LeaderboardUploadCallback uploadCallback);
+
+	API(SteamworksError) Leaderboard_GetError(Leaderboard* leaderboard);
+	API(BOOLRET) Leaderboard_PollIsDone(Leaderboard* leaderboard);
+
+	API(uint64) Leaderboard_GetEntriesCount(Leaderboard* leaderboard);
+	API(void) Leaderboard_GetEntry(Leaderboard* leaderboard, uint64 index, LeaderboardEntry *entry);
+
 	API(void) Leaderboard_Find(Leaderboard* leaderboard, const char* name);
 	API(void) Leaderboard_DownloadScores(Leaderboard* leaderboard, ELeaderboardDataRequest data, int32 from, int32 to);
 	API(void) Leaderboard_UploadScore(Leaderboard* leaderboard, ELeaderboardUploadScoreMethod method, int32 score);

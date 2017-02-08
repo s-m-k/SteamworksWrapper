@@ -193,17 +193,21 @@ namespace SteamworksWrapper {
             }
         }
 
-        public sealed class UserGeneratedContent : UnmanagedDisposable {
+        public sealed class UserGeneratedContent : UnmanagedDisposable, IPollEntity {
             public event Action<SteamworksError, DetailedResult> onError;
             public event Action<WorkshopItemInfo, bool> onCreateItem;
             public event Action<bool> onSubmitItem;
 
-            OnWorkshopError workshopErrorDelegate;
-            OnWorkshopCreateItem createItemDelegate;
-            OnWorkshopSubmitItem submitItemDelegate;
-
+            PolledCallback polledCallback = null;
             OnWorkshopSubscribedItem subscribedItem;
             OnWorkshopUnsubscribedItem unsubscribedItem;
+
+            public bool IsDone {
+                get {
+                    AssertDisposed();
+                    return NativeMethods.Workshop_PollIsDone(pointer);
+                }
+            }
 
             public static UserGeneratedContent Create() {
                 if (!steamInitialized) {
@@ -213,20 +217,16 @@ namespace SteamworksWrapper {
                 return new UserGeneratedContent();
             }
 
-            private UserGeneratedContent(): base(NativeMethods.Workshop_Create(appId)) {
-                workshopErrorDelegate = new OnWorkshopError(OnWorkshopError);
-                createItemDelegate = new OnWorkshopCreateItem(OnCreateItem);
-                submitItemDelegate = new OnWorkshopSubmitItem(OnSubmitItem);
-
-                NativeMethods.Workshop_OnError(pointer, workshopErrorDelegate);
-                NativeMethods.Workshop_OnCreateItem(pointer, createItemDelegate);
-                NativeMethods.Workshop_OnSubmitItem(pointer, submitItemDelegate);
+            private UserGeneratedContent() : base(NativeMethods.Workshop_Create(appId)) {
             }
 
             public void CreateItem(WorkshopFileType fileType) {
                 AssertDisposed();
 
                 NativeMethods.Workshop_CreateItem(pointer, fileType);
+
+                CancelCallback(ref polledCallback);
+                WaitForDone(this, OnCreateItem);
             }
 
             public UpdateParamErrors[] UpdateItem(WorkshopItemInfo item, string changeNotes = "") {
@@ -235,7 +235,7 @@ namespace SteamworksWrapper {
                 var fileID = item.fileID;
                 NativeMethods.Workshop_StartItemUpdate(pointer, fileID);
                 List<UpdateParamErrors> errors = new List<UpdateParamErrors>();
- 
+
                 if (!NativeMethods.Workshop_SetItemTitle(pointer, item.title)) {
                     errors.Add(UpdateParamErrors.TITLE);
                 }
@@ -270,11 +270,14 @@ namespace SteamworksWrapper {
 
                 if (errors.Count == 0) {
                     NativeMethods.Workshop_SubmitItemUpdate(pointer, changeNotes);
+
+                    CancelCallback(ref polledCallback);
+                    polledCallback = WaitForDone(this, OnSubmitItem);
                 }
 
                 return errors.ToArray();
             }
-            
+
             public WorkshopItem[] GetSubscribedItems() {
                 AssertDisposed();
 
@@ -291,13 +294,16 @@ namespace SteamworksWrapper {
                 return outItems;
             }
 
-            void OnWorkshopError(SteamworksError error, DetailedResult result) {
-                if (onError != null) {
-                    onError(error, result);
-                }
-            }
+            void OnCreateItem() {
+                AssertDisposed();
 
-            void OnCreateItem(WorkshopCreateItemResult result) {
+                if (AssertError()) {
+                    return;
+                }
+
+                WorkshopCreateItemResult result = new WorkshopCreateItemResult();
+                NativeMethods.Workshop_GetCreateItemResult(pointer, ref result);
+
                 if (result.result != DetailedResult.OK) {
                     OnWorkshopError(SteamworksError.ERR_CANT_CREATE_WORKSHOP_ITEM, result.result);
                     return;
@@ -310,7 +316,16 @@ namespace SteamworksWrapper {
                 }
             }
 
-            void OnSubmitItem(WorkshopSubmitItemResult result) {
+            void OnSubmitItem() {
+                AssertDisposed();
+
+                if (AssertError()) {
+                    return;
+                }
+
+                WorkshopSubmitItemResult result = new WorkshopSubmitItemResult();
+                NativeMethods.Workshop_GetSubmitItemResult(pointer, ref result);
+
                 if (result.result != DetailedResult.OK) {
                     OnWorkshopError(SteamworksError.ERR_CANT_SUBMIT_WORKSHOP_ITEM, result.result);
                     return;
@@ -318,6 +333,23 @@ namespace SteamworksWrapper {
 
                 if (onSubmitItem != null) {
                     onSubmitItem(result.needsToAcceptLegalAgreement);
+                }
+            }
+
+            bool AssertError() {
+                SteamworksError error = NativeMethods.Workshop_GetError(pointer);
+
+                if (error != SteamworksError.ERR_NO_ERROR) {
+                    OnWorkshopError(error, NativeMethods.Workshop_GetErrorDetails(pointer));
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
+            void OnWorkshopError(SteamworksError error, DetailedResult result) {
+                if (onError != null) {
+                    onError(error, result);
                 }
             }
 
@@ -332,6 +364,10 @@ namespace SteamworksWrapper {
 
             protected override void DestroyUnmanaged(IntPtr pointer) {
                 NativeMethods.Workshop_Destroy(pointer);
+            }
+
+            protected override void DestroyManaged() {
+                CancelCallback(ref polledCallback);
             }
         }
 

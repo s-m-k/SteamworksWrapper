@@ -1,13 +1,20 @@
 #include "Common.h"
 
-void ReportError(ErrorCallback onError, SteamworksError error) {
-	if (onError != NULL) {
-		onError(error);
+extern "C" {
+	void PollEntity::ReportError(SteamworksError error) {
+		this->error = error;
+		isDone = true;
 	}
-}
 
-void ReportErrorDetailed(ErrorCallbackDetailed onError, SteamworksError error, EResult result) {
-	if (onError != NULL) {
-		onError(error, result);
+	void PollEntity::ReportErrorDetailed(SteamworksError error, EResult result) {
+		this->error = error;
+		this->errorDetails = result;
+		isDone = true;
+	}
+
+	void PollEntity::ReportDone() {
+		error = ERR_NO_ERROR;
+		errorDetails = k_EResultOK;
+		isDone = true;
 	}
 }

@@ -16,8 +16,8 @@ extern "C" {
 	void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API UnityPluginLoad(IUnityInterfaces* unityInterfaces);
 	void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API UnityPluginUnload();
 
-	API(BOOL) InitializeSteam();
-	API(BOOL) IsRestartRequired(uint32 appId);
+	API(BOOLRET) InitializeSteam();
+	API(BOOLRET) IsRestartRequired(uint32 appId);
 	API(void) ShutdownSteam();
 	API(void) RunCallbacks();
 }

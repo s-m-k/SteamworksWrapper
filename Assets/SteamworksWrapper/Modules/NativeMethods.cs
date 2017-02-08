@@ -35,20 +35,19 @@ namespace SteamworksWrapper {
 
             [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
             public extern static void Leaderboard_Destroy(IntPtr leaderboard);
-
-
-            [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
-            public extern static void Leaderboard_OnError(IntPtr leaderboard, OnLeaderboardError onError);
-
-            [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
-            public extern static void Leaderboard_OnFind(IntPtr leaderboard, OnLeaderboardFind onFind);
-
-            [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
-            public extern static void Leaderboard_OnDownloadScores(IntPtr leaderboard, OnLeaderboardDownloadScores onDownload);
             
             [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
-            public extern static void Leaderboard_OnUploadScore(IntPtr leaderboard, OnLeaderboardUploadScore onUpload);
+            [return: MarshalAs(UnmanagedType.I1)]
+            public extern static bool Leaderboard_PollIsDone(IntPtr leaderboard);
 
+            [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            public extern static SteamworksError Leaderboard_GetError(IntPtr leaderboard);
+
+            [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            public extern static ulong Leaderboard_GetEntriesCount(IntPtr leaderboard);
+
+            [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            public extern static void Leaderboard_GetEntry(IntPtr leaderboard, ulong index, ref LeaderboardEntry score);
 
             [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
             public extern static void Leaderboard_Find(IntPtr leaderboard, [MarshalAs(UnmanagedType.LPStr)] string name);
@@ -168,16 +167,24 @@ namespace SteamworksWrapper {
             
             [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
             public extern static void Workshop_SubmitItemUpdate(IntPtr workshop, [MarshalAs(UnmanagedType.LPStr)] string changeNotes);
-            
-            [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
-            public extern static void Workshop_OnError(IntPtr workshop, OnWorkshopError error);
+
 
             [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
-            public extern static void Workshop_OnCreateItem(IntPtr workshop, OnWorkshopCreateItem createItem);
+            [return: MarshalAs(UnmanagedType.I1)]
+            public extern static bool Workshop_PollIsDone(IntPtr workshop);
 
             [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
-            public extern static void Workshop_OnSubmitItem(IntPtr workshop, OnWorkshopSubmitItem submitItem);
-            
+            public extern static SteamworksError Workshop_GetError(IntPtr leaderboard);
+
+            [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            public extern static DetailedResult Workshop_GetErrorDetails(IntPtr leaderboard);
+
+            [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            public extern static void Workshop_GetCreateItemResult(IntPtr leaderboard, ref WorkshopCreateItemResult result);
+
+            [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
+            public extern static void Workshop_GetSubmitItemResult(IntPtr leaderboard, ref WorkshopSubmitItemResult result);
+
             [DllImport(dllName, CallingConvention = CallingConvention.Cdecl)]
             public extern static ItemUpdateStatus Workshop_TrackUploadProgress(IntPtr workshop, ref ulong uploaded, ref ulong total);
     

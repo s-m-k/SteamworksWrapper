@@ -11,11 +11,11 @@ extern "C" {
 
 	}
 
-	API(BOOL) InitializeSteam() {
+	API(BOOLRET) InitializeSteam() {
 		return SteamAPI_Init();
 	}
 
-	API(BOOL) IsRestartRequired(uint32 appId) {
+	API(BOOLRET) IsRestartRequired(uint32 appId) {
 		return SteamAPI_RestartAppIfNecessary(appId);
 	}
 

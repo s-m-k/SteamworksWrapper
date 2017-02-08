@@ -14,7 +14,7 @@ extern "C" {
 	typedef int64 CSteamIDRet;
 
 	//ensure we use exactly 1 byte for bool on the C++ <-> C# boundary
-	typedef int8 BOOL;
+	typedef int8 BOOLRET;
 
 	enum SteamworksError {
 		ERR_NO_ERROR = 0x0,
@@ -29,11 +29,16 @@ extern "C" {
 		ERR_CANT_UNSUBSCRIBE_ITEM = 0x9,
 	};
 
-	typedef void(*ErrorCallback)(SteamworksError error);
-	typedef void(*ErrorCallbackDetailed)(SteamworksError error, EResult details);
-}
+	class PollEntity {
+	public:
+		SteamworksError error = ERR_NO_ERROR;
+		EResult errorDetails = k_EResultOK;
+		bool isDone = true;
 
-void ReportError(ErrorCallback onError, SteamworksError error);
-void ReportErrorDetailed(ErrorCallbackDetailed onError, SteamworksError error, EResult result);
+		void ReportError(SteamworksError error);
+		void ReportErrorDetailed(SteamworksError error, EResult result);
+		void ReportDone();
+	};
+}
 
 #endif

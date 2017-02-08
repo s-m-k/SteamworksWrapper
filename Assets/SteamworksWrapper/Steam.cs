@@ -26,6 +26,16 @@ namespace SteamworksWrapper {
             }
         }
 
+        private static void CancelCallback(ref PolledCallback callback) {
+            if (callback != null) {
+                callback.Cancel();
+            }
+        }
+        
+        private static PolledCallback WaitForDone(IPollEntity entity, Action callback) {
+            return new PolledCallback(instance, entity, callback);
+        }
+
         public static void Init(uint appId, GameObject obj) {
             //TODO check if steam exists
             try {

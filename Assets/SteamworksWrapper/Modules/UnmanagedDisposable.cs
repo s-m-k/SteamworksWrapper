@@ -24,15 +24,19 @@ namespace SteamworksWrapper {
 
         protected void Dispose(bool disposing) {
             if (!disposed) {
-                if (disposing) {
+                if (IntPtr.Zero != pointer) {
+                    Debug.Log("SteamworksWrapper: destroying native runtime object: " + GetType().Name + ".");
                     DestroyUnmanaged(pointer);
                     pointer = IntPtr.Zero;
                 }
+
+                DestroyManaged();
 
                 disposed = true;
             }
         }
 
         protected abstract void DestroyUnmanaged(IntPtr pointer);
+        protected abstract void DestroyManaged();
     }
 }
