@@ -8,10 +8,10 @@ The only purpose of this wrapper is to write a simple and robust library that's 
 Basic principles of the library:
 - Keep it simple and safe - simple C-like API (on the native-managed boundary), no weird memory hacks etc.
 - Super simple C++ to C# API - no function pointers (ugly, but reliable), limited data structures etc.
-- No bullshit - leave the SDK bullshit mess on the C++ side (e.g. no call results spaghetti in C# code, all of it is done in the native side)
+- No bullshit - leave the SDK bullshit mess on the C++ side (e.g. no call results spaghetti in C# code, all of it is done on the native side)
 - Expand it incrementally - do only what I actually need for my game, don't waste time on functionality I don't want to use
 - Don't necessarily map Steam API directly to C# - I don't like some Valve decisions regarding some names (might break SDK docs compatibility, but it's for my own comfort not yours)
-- Static C# classes - because Steam API is super singletonish and thinks it's a god surveiling your game, not gonna fight it
+- Static C# classes - because Steam API is super singletonish and thinks it's a god surveilling your game, not gonna fight it
 
 Leaderboards demo syntax (no Steamworks SDK callback mess):
 ```
